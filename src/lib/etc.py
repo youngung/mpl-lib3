@@ -13,8 +13,13 @@ def gen_hash_code2(nchar=6):
     -------
     random heshcode upto <nchar> characters
     """
-    import os
-    return os.urandom(16).encode('hex')[:nchar]
+    import uuid
+    return uuid.uuid4().hex[:nchar]
+#    import os
+#    return os.urandom(16)[:nchar] # new
+#    return os.urandom(16).encode('hex')[:nchar] # old method 
+
+
 
 def gen_hash_code(nchar=6):
     """
