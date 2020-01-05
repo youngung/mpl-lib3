@@ -6,7 +6,14 @@ def find_vpsc_repo():
     """
     Find path to VPSC repository
     """
-    path_home = os.environ['HOME']
+    if os.name=='posix':
+        path_home = os.environ['HOME']
+    elif os.name=='nt':
+        path_home = os.environ['USERPROFILE']
+
+        if os.environ['USERDOMAIN']=='DESKTOP-67P6BC3':
+            return os.path.join(os.environ['USERPROFILE'],'repo','vpsc_plus_e')
+
     whereami = guessWhereami()
 
     ## test if repo/vpsc-fld-yld is present
@@ -47,7 +54,7 @@ def guessWhereami():
     if couldn't find, 'unknown' is returned.
     """
     ## add more IDs - locations all in lowercase
-    userIDs = dict(younguj='palmetto',yj='mac',youngung='mbp',hwigeon='hg@ubuntu')#,yougnung='ubuntu@mml'
+    userIDs = dict(younguj='palmetto',yj='mac',youngung='mbp',hwigeon='hg@ubuntu')#,young='desktop-67p6bc3')
     p = os.popen('whoami')
     whoami=p.read().split('\n')[0]
     if whoami in list(userIDs.keys()):
