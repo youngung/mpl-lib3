@@ -199,20 +199,58 @@ class FlowCurve:
         self.sigma_princ_vec=np.zeros((3,3,self.nstp))
         self.epsilon_princ_val=np.zeros((3,self.nstp))
         self.epsilon_princ_vec=np.zeros((3,3,self.nstp))
+        self.edot_princ_val=np.zeros((3,self.nstp))
+        self.edot_princ_vec=np.zeros((3,3,self.nstp))
         for istp in range(self.nstp):
             ## not necessarily order results.
+            # stress
             w, v = LA.eig(self.sigma[:,:,istp])
             ind = np.argsort(w)[::-1]
             self.sigma_princ_val[:,istp] = w[ind]
             self.sigma_princ_vec[:,:,istp] = v[:,ind]
 
-        for istp in range(self.nstp):
-            ## not necessarily order results.
-            w, v = LA.eig(self.epsilon[:,:,istp])
+            # strain
+            w, v = LA.eig(self.epsilon[:,:,istp]) # use of 'accumulated strain'
             ind = np.argsort(w)[::-1]
             self.epsilon_princ_val[:,istp] = w[ind]
             self.epsilon_princ_vec[:,:,istp] = v[:,ind]
 
+            # strain rate
+            w, v = LA.eig(self.d33[:,:,istp]) # use of 'accumulated strain'
+            ind = np.argsort(w)[::-1]
+            self.edot_princ_val[:,istp] = w[ind]
+            self.edot_princ_vec[:,:,istp] = v[:,ind]
+
+    def get_principal_inplane(self):
+        """
+        Calculate principal stresses and principal strains using only in-plane components.
+        """
+        from numpy import linalg as LA
+        self.sigma_princ_val_inplane=np.zeros((2,self.nstp))
+        self.sigma_princ_vec_inplane=np.zeros((2,2,self.nstp))
+        self.epsilon_princ_val_inplane=np.zeros((2,self.nstp))
+        self.epsilon_princ_vec_inplane=np.zeros((2,2,self.nstp))
+        self.edot_princ_val_inplane=np.zeros((2,self.nstp))
+        self.edot_princ_vec_inplane=np.zeros((2,2,self.nstp))
+        for istp in range(self.nstp):
+            ## not necessarily order results.
+            # stress
+            w, v = LA.eig(self.sigma[:2,:2,istp])
+            ind = np.argsort(w)[::-1]
+            self.sigma_princ_val_inplane[:,istp] = w[ind]
+            self.sigma_princ_vec_inplane[:,:,istp] = v[:,ind]
+
+            # strain
+            w, v = LA.eig(self.epsilon[:2,:2,istp]) # use of 'accumulated strain'
+            ind = np.argsort(w)[::-1]
+            self.epsilon_princ_val_inplane[:,istp] = w[ind]
+            self.epsilon_princ_vec_inplane[:,:,istp] = v[:,ind]
+
+            # strain rate
+            w, v = LA.eig(self.d33[:2,:2,istp]) # use of 'accumulated strain'
+            ind = np.argsort(w)[::-1]
+            self.edot_princ_val_inplane[:,istp] = w[ind]
+            self.edot_princ_vec_inplane[:,:,istp] = v[:,ind]
 
     def get_mohr_coulomb(self,c1,c2):
         """
@@ -226,19 +264,49 @@ class FlowCurve:
         c1
         c2
         """
+        from numpy import linalg as LA
+        calc_det=LA.det
+
         from scipy import interpolate
         self.get_deviatoric_stress()
+
+        self.sigma_dev ## deviatoric stress
+        self.j2=np.zeros(self.sigma_dev.shape[-1])
+        self.j3=np.zeros(self.sigma_dev.shape[-1])
+
+        for k in range(self.nstp):
+            dum=0.
+            for i in range(3):
+                for j in range(3):
+                    dum=dum+self.sigma_dev[i,j,k]*self.sigma_dev[i,j,k]
+            self.j2[k]=0.5*dum
+            self.j3[k]=calc_det(self.sigma_dev[:,:,k])
+
         sigma_mean = self.get_pressure()
         p = sigma_mean*(-1)   # Eq (1)
         q = self.sigma_vm     # Eq (2)
         r = self.get_r()      # Eq (3)
         self.get_principal()
         self.eta = sigma_mean/q    # Eq (5)
+
+        self.lode=np.zeros(self.nstp)
+        for k in range(self.nstp):
+            dum1=3*np.sqrt(3.)/2.*self.j3[k]/(self.j2[k]**(3./2.))
+            dum=1./3.*np.arccos(dum1)
+            if np.isnan(dum):
+                print('Warning: nan was found.')
+                print('dum1:',dum1)
+                print('self.j3[k]:',self.j3[k])
+                print('self.j2[k]:',self.j2[k])
+                print('self.sigma_dev[k]:',self.sigma_dev[:,:,k])
+
+            self.lode[k]=dum
+
         ksi=(r/q)**3.         # Eq (6)
         th=np.arccos(ksi)/3.  # Eq (6)
         ## Lode angle parameter
         thbar=1.-6*th/np.pi
-        self.lode=thbar
+        # self.lode=thbar
 
         if False:
             print('p[-1]:', p[-1])
