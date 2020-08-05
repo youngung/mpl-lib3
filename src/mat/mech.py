@@ -654,6 +654,7 @@ class FlowCurve:
             self.strain_tr = self.strain_tr.swapaxes(0,2).swapaxes(0,1)
             self.pmac=np.array(pmac)
             self.pwgt=np.array(pwgt)
+            self.tincrs = np.array(tincrs)
         elif self.imod=='EVPSC-HW':
             pass
         elif self.imod=='EVPSC-HW-ORI':
