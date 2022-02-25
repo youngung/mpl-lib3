@@ -550,6 +550,7 @@ class FlowCurve:
                             strain_el=[]
                             strain_pl=[]
                             strain_tr=[]
+                            temps=[]
 
                         # dat = map(float,l.split())
                         evm,svm=dat[0:2]
@@ -573,7 +574,7 @@ class FlowCurve:
                             # sr, w = self.Decompose_SA(v33)
                         elif ncol==45: ## EVPSC
                             self.imod='EVPSC'
-                            tempr = dat[14]
+                            temps.append(dat[14])
                             eps_el = self.conv6_to_33(dat[15:21])
                             eps_pl = self.conv6_to_33(dat[21:27])
                             eps_tr = self.conv6_to_33(dat[27:33])
@@ -597,6 +598,9 @@ class FlowCurve:
                             raise IOError('Unexpected number of columns found in data file')
 
             # print 'IMOD:', self.imod
+
+            print(f'ncol:{ncol}')
+            print(f'iopt:{iopt}')
 
             if iopt==1:
                 ibreak=False
@@ -622,6 +626,7 @@ class FlowCurve:
                     strain_el.append(eps_el)
                     strain_pl.append(eps_pl)
                     strain_tr.append(eps_tr)
+                    temps.append(tempr)
                     velgrads.append(v33)
                     tincrs.append(dat[42])
                     pmac.append(dat[43])
@@ -639,6 +644,8 @@ class FlowCurve:
         self.sigma_vm=SVM[::]
         self.w = cumtrapz(y=SVM,x=EVM,initial=0)
 
+        print(f'self.imod: {self.imod}')
+
         if self.imod=='VPSC':
             self.velgrads = np.array(velgrads)
             self.velgrads = self.velgrads.swapaxes(0,2).swapaxes(0,1)
@@ -655,6 +662,7 @@ class FlowCurve:
             self.pmac=np.array(pmac)
             self.pwgt=np.array(pwgt)
             self.tincrs = np.array(tincrs)
+            self.temps=np.array(temps)
         elif self.imod=='EVPSC-HW':
             pass
         elif self.imod=='EVPSC-HW-ORI':
