@@ -547,8 +547,8 @@ class FlowCurve:
                         if type(ncol)==type(None):
                             ncol=len(dat)
                             velgrads = []
-                            strain_el=[]
-                            strain_pl=[]
+                            # strain_el=[]
+                            # strain_pl=[]
                             strain_tr=[]
                             temps=[]
 
@@ -575,12 +575,14 @@ class FlowCurve:
                         elif ncol==45: ## EVPSC
                             self.imod='EVPSC'
                             temps.append(dat[14])
-                            eps_el = self.conv6_to_33(dat[15:21])
-                            eps_pl = self.conv6_to_33(dat[21:27])
-                            eps_tr = self.conv6_to_33(dat[27:33])
+                            #eps_el = self.conv6_to_33(dat[15:21])
+                            # eps_pl = eps_el.copy() ## not relevant anymore for delta-EVPSC
+                            # eps_pl = self.conv6_to_33(dat[21:27])
+                            eps_tr = self.conv6_to_33(dat[21:27])
+                            #eps_tr = self.conv6_to_33(dat[27:33])
                             v33    = self.conv9_to_33(dat[33:42])
-                            strain_el.append(eps_el)
-                            strain_pl.append(eps_pl)
+                            # strain_el.append(eps_el)
+                            # strain_pl.append(eps_pl)
                             strain_tr.append(eps_tr)
                             velgrads.append(v33)
                             tincrs.append(dat[42])
@@ -599,8 +601,8 @@ class FlowCurve:
 
             # print 'IMOD:', self.imod
 
-            print(f'ncol:{ncol}')
-            print(f'iopt:{iopt}')
+            #print(f'ncol:{ncol}')
+            #print(f'iopt:{iopt}')
 
             if iopt==1:
                 ibreak=False
@@ -623,8 +625,8 @@ class FlowCurve:
                     eps_pl = self.conv6_to_33(dat[21:27])
                     eps_tr = self.conv6_to_33(dat[27:33])
                     v33    = self.conv9_to_33(dat[33:42])
-                    strain_el.append(eps_el)
-                    strain_pl.append(eps_pl)
+                    #strain_el.append(eps_el)
+                    #strain_pl.append(eps_pl)
                     strain_tr.append(eps_tr)
                     temps.append(tempr)
                     velgrads.append(v33)
@@ -644,7 +646,7 @@ class FlowCurve:
         self.sigma_vm=SVM[::]
         self.w = cumtrapz(y=SVM,x=EVM,initial=0)
 
-        print(f'self.imod: {self.imod}')
+        #print(f'self.imod: {self.imod}')
 
         if self.imod=='VPSC':
             self.velgrads = np.array(velgrads)
@@ -653,10 +655,10 @@ class FlowCurve:
         elif self.imod=='EVPSC':
             self.velgrads = np.array(velgrads)
             self.velgrads = self.velgrads.swapaxes(0,2).swapaxes(0,1)
-            self.strain_el=np.array(strain_el)
-            self.strain_el = self.strain_el.swapaxes(0,2).swapaxes(0,1)
-            self.strain_pl=np.array(strain_pl)
-            self.strain_pl = self.strain_pl.swapaxes(0,2).swapaxes(0,1)
+            #self.strain_el=np.array(strain_el)
+            #self.strain_el = self.strain_el.swapaxes(0,2).swapaxes(0,1)
+            #self.strain_pl=np.array(strain_pl)
+            #self.strain_pl = self.strain_pl.swapaxes(0,2).swapaxes(0,1)
             self.strain_tr=np.array(strain_tr)
             self.strain_tr = self.strain_tr.swapaxes(0,2).swapaxes(0,1)
             self.pmac=np.array(pmac)
