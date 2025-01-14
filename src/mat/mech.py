@@ -522,11 +522,11 @@ class FlowCurve:
         epsilon=alldat[2:8,:]
         sigma=alldat[8:14,:]
         velgrads9=alldat[14:23,:]
-        tincrs=alldat[23,:]
-        pmac=alldat[24,:]
-        pwgt=alldat[25,:]
-        temp=alldat[26,:]
-        plwork=alldat[27,:]
+        self.tincrs=alldat[23,:]
+        self.pmac=alldat[24,:]
+        self.pwgt=alldat[25,:]
+        self.temp=alldat[26,:]
+        self.plwork=alldat[27,:]
 
         ## post-processing
         self.get_6stress(x=np.array(sigma).T)
@@ -543,11 +543,6 @@ class FlowCurve:
             for j in range(3):
                 self.velgrads[i,j,:] = velgrads9[k,:]
                 k=k+1
-
-        # self.pmac=np.array(pmac)
-        # self.pwgt=np.array(pwgt)
-        # self.tincrs = np.array(tincrs)
-        # self.temps=np.array(temps)
 
         ## from vel. gradient, calculate strain rate, spin rate, and inst R value.
         v  = self.velgrads.copy()
