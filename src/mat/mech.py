@@ -513,7 +513,7 @@ class FlowCurve:
 
         ## EVM, SVM, sigma(6), epsilon(6), velgrads(9), tincr, pmac, pwgt, temp, plwork
         alldat=np.loadtxt(fn,skiprows=1).T
-        print(f'alldat.shape: {alldat.shape}')
+        # print(f'alldat.shape: {alldat.shape}')
 
         EVM=alldat[0,:]
         SVM=alldat[1,:]
