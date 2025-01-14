@@ -491,7 +491,77 @@ class FlowCurve:
 
         plt.tight_layout()
 
-    def get_model(self,fn='STR_STR.OUT',iopt=0):
+    def get_model(self,fn='STR_STR.OUT'):
+        """
+        Version 2024 Jan
+
+        Read STR_STR.OUT
+
+        Arguments
+        =========
+        fn='STR_STR.OUT'
+
+        Read "STR_STR.OUT" that might have 'intermediate headers'
+        """
+        ncol=None
+
+
+        ## check the validity of the given file name.
+        with open(fn) as f:
+            datl = f.read()
+            datl = datl.split('\n') ## all the lines.
+            if len(datl)<2:
+                raise IOError('** Error: too small number of rows')
+
+        ## EVM, SVM, sigma(6), epsilon(6), velgrads(9), tincr, pmac, pwgt, temp, plwork
+        alldat=np.loadtxt(fn,skiprows=1).T
+        print(f'alldat.shape: {alldat.shape}')
+
+        EVM=alldat[0,:]
+        SVM=alldat[1,:]
+        epsilon=alldat[2:8,:]
+        sigma=alldat[8:14,:]
+        velgrads9=alldat[14:23,:]
+        tincrs=alldat[23,:]
+        pmac=alldat[24,:]
+        pwgt=alldat[25,:]
+        temp=alldat[26,:]
+        plwork=alldat[27,:]
+
+        ## post-processing
+        self.get_6stress(x=np.array(sigma).T)
+        self.get_6strain(x=np.array(epsilon).T)
+        self.epsilon_vm = EVM[::]
+        self.sigma_vm=SVM[::]
+        self.w = cumtrapz(y=SVM,x=EVM,initial=0)
+
+        #print(f'self.imod: {self.imod}')
+
+        self.velgrads = np.zeros((3,3,velgrads9.shape[-1]))
+        k=0
+        for i in range(3):
+            for j in range(3):
+                self.velgrads[i,j,:] = velgrads9[k,:]
+                k=k+1
+
+        # self.pmac=np.array(pmac)
+        # self.pwgt=np.array(pwgt)
+        # self.tincrs = np.array(tincrs)
+        # self.temps=np.array(temps)
+
+        ## from vel. gradient, calculate strain rate, spin rate, and inst R value.
+        v  = self.velgrads.copy()
+        vt = self.velgrads.swapaxes(0,1)
+        self.d33 = 0.5 * (v+vt)
+        self.w33 = 0.5 * (v-vt)
+
+        ind=~(self.d33[2,2]==0)
+        self.instR=np.zeros(len(ind))
+        self.instR[~ind]=np.nan
+        self.instR[ind] = self.d33[1,1][ind]/self.d33[2,2][ind]
+
+
+    def get_model_old(self,fn='STR_STR.OUT',iopt=0):
         """
         Version 2015-06
 
@@ -680,6 +750,7 @@ class FlowCurve:
             self.instR=np.zeros(len(ind))
             self.instR[~ind]=np.nan
             self.instR[ind] = self.d33[1,1][ind]/self.d33[2,2][ind]
+
 
     def get_pmodel(self,fn):
         dat    = np.loadtxt(fn,skiprows=1).T
