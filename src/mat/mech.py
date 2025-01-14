@@ -519,8 +519,8 @@ class FlowCurve:
 
         EVM=alldat[0,:]
         SVM=alldat[1,:]
-        epsilon=alldat[2:8,:]
-        sigma=alldat[8:14,:]
+        self.epsilon=alldat[2:8,:]
+        self.sigma=alldat[8:14,:]
         velgrads9=alldat[14:23,:]
         self.tincrs=alldat[23,:]
         self.pmac=alldat[24,:]
@@ -529,8 +529,8 @@ class FlowCurve:
         self.plwork=alldat[27,:]
 
         ## post-processing
-        self.get_6stress(x=np.array(sigma).T)
-        self.get_6strain(x=np.array(epsilon).T)
+        self.get_6stress(x=np.array(sigma))
+        self.get_6strain(x=np.array(epsilon))
         self.epsilon_vm = EVM[::]
         self.sigma_vm=SVM[::]
         self.w = cumtrapz(y=SVM,x=EVM,initial=0)
