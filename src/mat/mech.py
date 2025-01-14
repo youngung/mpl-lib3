@@ -503,8 +503,6 @@ class FlowCurve:
 
         Read "STR_STR.OUT" that might have 'intermediate headers'
         """
-        ncol=None
-
 
         ## check the validity of the given file name.
         with open(fn) as f:
@@ -519,23 +517,29 @@ class FlowCurve:
 
         EVM=alldat[0,:]
         SVM=alldat[1,:]
-        self.epsilon=alldat[2:8,:]
-        self.sigma=alldat[8:14,:]
+        epsilon=alldat[2:8,:]
+        sigma=alldat[8:14,:] ## cauchy stress
         velgrads9=alldat[14:23,:]
-        self.tincrs=alldat[23,:]
-        self.pmac=alldat[24,:]
-        self.pwgt=alldat[25,:]
-        self.temp=alldat[26,:]
-        self.plwork=alldat[27,:]
+        eps_el6=alldat[23:29,:]
+
+        self.tincrs=alldat[29,:]
+        self.pmac=alldat[30,:]
+        self.pwgt=alldat[31,:]
+        self.temp=alldat[32,:]
+        self.plwork=alldat[33,:]
 
         ## post-processing
         self.get_6stress(x=np.array(sigma))
         self.get_6strain(x=np.array(epsilon))
         self.epsilon_vm = EVM[::]
         self.sigma_vm=SVM[::]
-        self.w = cumtrapz(y=SVM,x=EVM,initial=0)
+        self.epsilon_el=np.zeros((3,3,eps_el6.shape[-1]))
+        for k in range(len(self.vo)):
+            i,j=self.vo[k]
+            self.epsilon_el[i,j,:]=eps_el6[k,:].copy()
+            self.epsilon_el[j,i,:]=eps_el6[k,:].copy()
 
-        #print(f'self.imod: {self.imod}')
+        #self.w = cumtrapz(y=SVM,x=EVM,initial=0)
 
         self.velgrads = np.zeros((3,3,velgrads9.shape[-1]))
         k=0
@@ -878,6 +882,7 @@ class FlowCurve:
 
         Advised to be used for 'experimental' data
         """
+        raise IOError("Error:** do not use integrate_work, use plwork from EVPSC")
 
         if not(self.is_strain_available) or \
            not(self.is_stress_available):
