@@ -571,7 +571,7 @@ class FlowCurve:
         ind=~(self.epsilon[2,2]==0)
         self.accR=np.zeros(len(ind))
         self.accR[~ind]=np.nan
-        self.accR[ind] = self.epsilon[1,1] / self.epsilon[2,2]
+        self.accR[ind] = self.epsilon[1,1][ind] / self.epsilon[2,2][ind]
         ## instantaneous R-value based on 'VP' strain
         ind=~(self.dvp33[2,2]==0)
         self.instRvp=np.zeros(len(ind))
@@ -581,7 +581,7 @@ class FlowCurve:
         ind=~(self.epsilon_pl[2,2]==0)
         self.accRvp=np.zeros(len(ind))
         self.accRvp[~ind]=np.nan
-        self.accRvp[ind] = self.epsilon_pl[1,1] / self.epsilon_pl[2,2]
+        self.accRvp[ind] = self.epsilon_pl[1,1][ind] / self.epsilon_pl[2,2][ind]
 
 
 
