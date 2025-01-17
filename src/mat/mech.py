@@ -521,12 +521,13 @@ class FlowCurve:
         sigma=alldat[8:14,:] ## cauchy stress
         velgrads9=alldat[14:23,:]
         eps_el6=alldat[23:29,:]
+        edot_el6=alldat[29:35,:]
 
-        self.tincrs=alldat[29,:]
-        self.pmac=alldat[30,:]
-        self.pwgt=alldat[31,:]
-        self.temp=alldat[32,:]
-        self.plwork=alldat[33,:]
+        self.tincrs=alldat[35,:]
+        self.pmac=alldat[36,:]
+        self.pwgt=alldat[37,:]
+        self.temp=alldat[38,:]
+        self.plwork=alldat[39,:]
 
         ## post-processing
         self.get_6stress(x=np.array(sigma))
@@ -534,10 +535,15 @@ class FlowCurve:
         self.epsilon_vm = EVM[::]
         self.sigma_vm=SVM[::]
         self.epsilon_el=np.zeros((3,3,eps_el6.shape[-1]))
+        self.epsilon_pl=np.zeros((3,3,eps_el6.shape[-1]))
+        self.edot_el=np.zeros((3,3,edot_el6.shape[-1]))
         for k in range(len(self.vo)):
             i,j=self.vo[k]
             self.epsilon_el[i,j,:]=eps_el6[k,:].copy()
             self.epsilon_el[j,i,:]=eps_el6[k,:].copy()
+            self.edot_el[i,j,:]=edot_el6[k,:].copy()
+            self.edot_el[j,i,:]=edot_el6[k,:].copy()
+        self.epsilon_pl=self.epsilon-self.epsilon_el
 
         #self.w = cumtrapz(y=SVM,x=EVM,initial=0)
 
@@ -553,11 +559,30 @@ class FlowCurve:
         vt = self.velgrads.swapaxes(0,1)
         self.d33 = 0.5 * (v+vt)
         self.w33 = 0.5 * (v-vt)
+        self.dvp33 = self.d33 - self.edot_el
 
+
+        ## instantaneous R-value based on 'EVP' strain rates
         ind=~(self.d33[2,2]==0)
         self.instR=np.zeros(len(ind))
         self.instR[~ind]=np.nan
         self.instR[ind] = self.d33[1,1][ind]/self.d33[2,2][ind]
+        ## instantaneous R-value based on 'EVP' strain
+        ind=~(self.epsilon[2,2]==0)
+        self.accR=np.zeros(len(ind))
+        self.accR[~ind]=np.nan
+        self.accR[ind] = self.epsilon[1,1] / self.epsilon[2,2]
+        ## instantaneous R-value based on 'VP' strain
+        ind=~(self.dvp33[2,2]==0)
+        self.instRvp=np.zeros(len(ind))
+        self.instRvp[~ind]=np.nan
+        self.instRvp[ind] = self.dvp33[1,1][ind]/self.dvp33[2,2][ind]
+        ## instantaneous R-value based on 'VP' strain
+        ind=~(self.epsilon_pl[2,2]==0)
+        self.accRvp=np.zeros(len(ind))
+        self.accRvp[~ind]=np.nan
+        self.accRvp[ind] = self.epsilon_pl[1,1] / self.epsilon_pl[2,2]
+
 
 
     def get_model_old(self,fn='STR_STR.OUT',iopt=0):
