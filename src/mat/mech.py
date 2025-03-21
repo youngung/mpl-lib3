@@ -11,7 +11,11 @@ yjeong@changwon.ac.kr
 """
 import numpy as np
 from scipy import integrate
-cumtrapz=integrate.cumtrapz
+try:
+    cumtrapz=integrate.cumtrapz
+except:
+    # scipy >1.14 
+    cumtrapz=integrate.cumulative_trapezoid
 
 class FlowCurve:
     """
