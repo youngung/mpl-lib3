@@ -50,12 +50,7 @@ def read_tx(fn='TEX_PH1.OUT'):
         lines = b.split('\n')
         lines=lines[1:1+ngrs[ib]]
         igr=0
-        print(f'line0: {lines[0]}')
-        print(f'line1: {lines[1]}')
-        print(f'line2: {lines[2]}')
         for il, line in enumerate(lines):
-            print('il:',il)
-            print('line:',line)
             dat=line.split()
             ph1,ph,ph2,wgt=list(map(float,dat[:4]))
             pxs[ib,:,igr]=[ph1,ph,ph2,wgt]
