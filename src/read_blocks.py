@@ -30,10 +30,15 @@ def read_tx(fn='TEX_PH1.OUT'):
     import sys
     f=open(fn,'r')
     d=f.read()
+    lines=d.split('\n')
+
+    ncol=len(lines[4].split())
+    # print('ncol:',ncol)
+
     blocks=d.split('B ')
     blocks=blocks[1:]
     nb=len(blocks)
-    px=[]
+
 
     MXGR=0
     ngrs=[]
@@ -43,7 +48,8 @@ def read_tx(fn='TEX_PH1.OUT'):
         if ngr>MXGR:MXGR=ngr
         ngrs.append(ngr)
 
-    pxs=np.zeros((nb,4,ngr))
+
+    pxs=np.zeros((nb,ncol,ngr))
 
     for ib in range(nb):
         b = blocks[ib]
@@ -52,8 +58,7 @@ def read_tx(fn='TEX_PH1.OUT'):
         igr=0
         for il, line in enumerate(lines):
             dat=line.split()
-            ph1,ph,ph2,wgt=list(map(float,dat[:4]))
-            pxs[ib,:,igr]=[ph1,ph,ph2,wgt]
+            pxs[ib,:,igr]=list(map(float,dat[:ncol]))
             igr=igr+1
 
     return pxs,ngrs
