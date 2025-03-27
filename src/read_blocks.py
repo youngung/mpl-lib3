@@ -8,7 +8,7 @@ def main(fn='STR_STR.OUT',skiprows=1):
        2-1) Either completely ignore the appearance of the blocks
        2-2) Or, use the block as the indication of separable data blocks
     """
-    try: 
+    try:
         # in case that no heads are inserted:
         return np.loadtxt(fn,skiprows=skiprows).T
     except ValueError:
@@ -27,6 +27,7 @@ def read_tx(fn='TEX_PH1.OUT'):
     pxs   : pxs[nb,4,ngrs]
     ngrs
     """
+    import sys
     f=open(fn,'r')
     d=f.read()
     blocks=d.split('B ')
@@ -47,13 +48,19 @@ def read_tx(fn='TEX_PH1.OUT'):
     for ib in range(nb):
         b = blocks[ib]
         lines = b.split('\n')
+        lines=lines[1:1+ngrs[ib]]
         igr=0
-        for il in range(len(lines)):
-            grain=lines[il].split()
-            if len(grain)==4:
-                ph1,ph,ph2,wgt=list(map(float,grain))
-                pxs[ib,:,igr]=[ph1,ph,ph2,wgt]
-                igr=igr+1
+        print(f'line0: {lines[0]}')
+        print(f'line1: {lines[1]}')
+        print(f'line2: {lines[2]}')
+        for il, line in enumerate(lines):
+            print('il:',il)
+            print('line:',line)
+            dat=line.split()
+            ph1,ph,ph2,wgt=list(map(float,dat[:4]))
+            pxs[ib,:,igr]=[ph1,ph,ph2,wgt]
+            igr=igr+1
+
     return pxs,ngrs
 
 def rb(fn,skiprows):
@@ -90,14 +97,14 @@ def reader_nc(fn='sf_unload_ph1.out',nc=481):
 
     for i in range(len(lines)):
         try: n0=len(list(map(float,lines[i].split())))
-        except: 
+        except:
             print('Line %i is not pure float'%i)
             pass
         else:
             if n0==nc:
                 rst_lines.append(list(map(float,lines[i].split())))
             else:
-                print('Line %i is not matched'%i) 
+                print('Line %i is not matched'%i)
     return rst_lines
 def _count_nc_(fn):
     f=open(fn,'r')
@@ -118,7 +125,7 @@ def _block_starter_(fn='sf_unload_ph1.out',nc=481):
         if len(lines[i].split())!=481:
             l0.append(i)
     return l0
-            
+
 def read_sf_scan(fn='sf_unload_ph1.out'):
     """
     fn ='sf_unload_ph1.out'
