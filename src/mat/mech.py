@@ -14,7 +14,7 @@ from scipy import integrate
 try:
     cumtrapz=integrate.cumtrapz
 except:
-    # scipy >1.14 
+    # scipy >1.14
     cumtrapz=integrate.cumulative_trapezoid
 
 class FlowCurve:

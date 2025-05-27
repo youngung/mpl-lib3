@@ -14,6 +14,28 @@ def main(fn='STR_STR.OUT',skiprows=1):
     except ValueError:
         return rb(fn,skiprows)
 
+def read_tx_evms(fn='TEX_PH1.OUT'):
+    """
+    Read evms from 'tex_ph1.out' format files.
+
+    Return
+    ------
+    evms : array that contains the von mises strains
+    """
+    f=open(fn,'r')
+    d=f.read()
+    ## finding the evm if written.
+    blocks=d.split('TEXTURE FOR')
+    blocks=blocks[1:]
+    evms=np.zeros(len(blocks),dtype='float')
+    for incr, b in enumerate(blocks):
+        try:
+            evm=float(b.split('\n')[0].split()[-1])
+            evms[incr]=evm
+        except:
+            break
+    return evms
+
 def read_tx(fn='TEX_PH1.OUT'):
     """
     Read a block of 'TEX_PH?.OUT'
@@ -31,10 +53,8 @@ def read_tx(fn='TEX_PH1.OUT'):
     f=open(fn,'r')
     d=f.read()
     lines=d.split('\n')
-
     ncol=len(lines[4].split())
     # print('ncol:',ncol)
-
     blocks=d.split('B ')
     blocks=blocks[1:]
     nb=len(blocks)
