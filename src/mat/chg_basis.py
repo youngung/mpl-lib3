@@ -1,29 +1,29 @@
 import math
 import numpy as np
 
-def kasemer(sig33,s,iopt):
+def kasemer(cart,s,iopt):
     """
     Following the convention used by Kasemer and Dawson.
     https://doi.org/10.48550/arXiv.2502.19531
 
     Arguments
     ---------
-    sig33
+    cart
     s
     iopt
 
     Returns
     -------
-    if iopt==0: returns s
-    if iopt==1: returns sig
+    if iopt==0: returns s (vectorized 5-D deviatoric quantity)
+    if iopt==1: returns sig (cartesian 3x3 quantity)
     """
     if iopt==0:
         rst=np.zeros(5)
-        rst[0]=sqrt(0.5)*(sig33[0,0]-sig33[1,1])
-        rst[1]=sqrt(1.5)* sig33[2,2]
-        rst[2]=sqrt(2)  * sig33[1,2]
-        rst[3]=sqrt(2)  * sig33[0,2]
-        rst[4]=sqrt(2)  * sig33[0,1]
+        rst[0]=sqrt(0.5)*(cart[0,0]-cart[1,1])
+        rst[1]=sqrt(1.5)* cart[2,2]
+        rst[2]=sqrt(2)  * cart[1,2]
+        rst[3]=sqrt(2)  * cart[0,2]
+        rst[4]=sqrt(2)  * cart[0,1]
         return rst
     elif iopt==1:
         rst=np.zeros((3,3))
