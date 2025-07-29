@@ -1,5 +1,54 @@
 import math
 import numpy as np
+
+def kasemer(sig33,s,iopt):
+    """
+    Following the convention used by Kasemer and Dawson.
+    https://doi.org/10.48550/arXiv.2502.19531
+
+    Arguments
+    ---------
+    sig33
+    s
+    iopt
+
+    Returns
+    -------
+    if iopt==0: returns s
+    if iopt==1: returns sig
+    """
+    if iopt==0:
+        rst=np.zeros(5)
+        rst[0]=sqrt(0.5)*(sig33[0,0]-sig33[1,1])
+        rst[1]=sqrt(1.5)* sig33[2,2]
+        rst[2]=sqrt(2)  * sig33[1,2]
+        rst[3]=sqrt(2)  * sig33[0,2]
+        rst[4]=sqrt(2)  * sig33[0,1]
+        return rst
+    elif iopt==1:
+        rst=np.zeros((3,3))
+        rst[0,0]=0.5**0.5*s[0]-6**(-0.5)*s[1]
+        rst[2,2]=1.5**(-0.5)*s[1]
+        rst[1,1]=-rst[0,0]-rst[2,2]
+
+        rst[1,2]=1./sqrt(2)*s[2]
+        rst[2,1]=rst[1,2]
+
+        rst[0,2]=1./sqrt(2)*s[3]
+        rst[2,0]=rst[0,2]
+
+        rst[0,1]=1./sqrt(2)*s[4]
+        rst[1,0]=rst[0,1]
+
+        return rst
+
+
+
+
+
+
+
+
 def chg_basis(ce2=None, c2=None, ce4=None, c4=None, iopt=0, kdim=5):
     """
     parameter(sqr2 = math.sqrt(2.))
