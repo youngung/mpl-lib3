@@ -1,7 +1,8 @@
 import math
 import numpy as np
+sqrt=np.sqrt
 
-def kasemer(cart,s,iopt):
+def kasemer(cart=None,s=None,iopt=None):
     """
     Following the convention used by Kasemer and Dawson.
     https://doi.org/10.48550/arXiv.2502.19531
