@@ -1,4 +1,3 @@
-import math
 import numpy as np
 sqrt=np.sqrt
 
@@ -28,10 +27,12 @@ def kasemer(cart=None,s=None,iopt=None):
         return rst
     elif iopt==1:
         rst=np.zeros((3,3))
+        ## normal components
         rst[0,0]=0.5**0.5*s[0]-6**(-0.5)*s[1]
         rst[2,2]=1.5**(-0.5)*s[1]
         rst[1,1]=-rst[0,0]-rst[2,2]
 
+        ## shear components
         rst[1,2]=1./sqrt(2)*s[2]
         rst[2,1]=rst[1,2]
 
@@ -44,17 +45,55 @@ def kasemer(cart=None,s=None,iopt=None):
         return rst
 
 
+def kocks(a,iopt):
+    """
+    Convention used in Kocks, Canova, Jonas, Acta Metallurgica, Vol 31 (1983)
+    https://doi.org/10.1016/0001-6160(83)90186-4
 
+    iopt0: Convert tensor represented by 3x3 matrix to 5-D vector
+    iopt1: Convert tensor represented by 5-D vector to 3x3 matrix
 
+    Arguments
+    ---------
+    a
+    iopt  0: a is 2nd order tensor represented by 3x3 matrix form
+          1: a is 2nd order tensor represented by 5-D vector form
 
+    Returns
+    -------
+    rst  0: rst is 2nd order tensor represented by 5-D vector form
+         1: rst is 2nd order tensor represented by 3x3 matrix form
+    """
+    if iopt==0:
+        rst=np.zeros(5)
+        rst[0]=(a[0,0]-a[1,1])/2.
+        rst[1]=1.5*a[2,2]
+        rst[2]=a[1,2]
+        rst[3]=a[2,0]
+        rst[4]=a[0,1]
+    elif iopt==1:
+        rst=np.zeros((3,3))
+        ## normal components
+        rst[0,0]= a[0]-1./3.*a[1]
+        rst[1,1]=-a[0]-1./3.*a[1]
+        rst[2,2]=2./3.*a[1]
+        ## shear components
+        rst[1,2]=a[2]
+        rst[2,1]=rst[1,2]
 
+        rst[2,0]=a[3]
+        rst[0,2]=rst[2,0]
 
+        rst[0,1]=a[4]
+        rst[1,0]=rst[0,1]
+
+    return rst
 
 def chg_basis(ce2=None, c2=None, ce4=None, c4=None, iopt=0, kdim=5):
     """
-    parameter(sqr2 = math.sqrt(2.))
-    parameter(rsq2 = 1./math.sqrt(2.))
-    parameter(rsq3 = 1./math.sqrt(3.))
+    parameter(sqr2 = sqrt(2.))
+    parameter(rsq2 = 1./sqrt(2.))
+    parameter(rsq3 = 1./sqrt(3.))
 
     ce2 = array(kdim)
     c2 = array(3,3)
@@ -70,10 +109,10 @@ def chg_basis(ce2=None, c2=None, ce4=None, c4=None, iopt=0, kdim=5):
     iopt = 4:
         c4   -- > ce4
     """
-    sqr2 = math.sqrt(2.)
-    rsq2 = 1./math.sqrt(2.)
-    rsq3 = 1./math.sqrt(3.)
-    rsq6 = 1./math.sqrt(6.)
+    sqr2 = sqrt(2.)
+    rsq2 = 1./sqrt(2.)
+    rsq3 = 1./sqrt(3.)
+    rsq6 = 1./sqrt(6.)
 
     b = np.resize(np.array((0.)), (3,3,6))
     if type(ce2) == type(None): ce2 = np.resize(np.array((0.)), (kdim))
