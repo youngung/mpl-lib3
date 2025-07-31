@@ -24,7 +24,8 @@ def trans_2ndtensor(aold: np.ndarray, r: np.ndarray) -> np.ndarray:
         raise ValueError("aold and r must have the same shape.")
 
     # Perform the tensor transformation
-    return r @ aold @ r.T
+    return np.einsum('ik,jl,kl->ij',r,r,aold)
+    #return r @ aold @ r.T
 
 
 def trans_4thtensor(aold: np.ndarray, r: np.ndarray) -> np.ndarray:
