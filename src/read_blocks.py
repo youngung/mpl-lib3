@@ -68,8 +68,8 @@ def read_tx(fn='TEX_PH1.OUT'):
         if ngr>MXGR:MXGR=ngr
         ngrs.append(ngr)
 
-
-    pxs=np.zeros((nb,ncol,ngr))
+    print('MXGR:',MXGR)
+    pxs=np.zeros((nb,ncol,MXGR))
 
     for ib in range(nb):
         b = blocks[ib]
